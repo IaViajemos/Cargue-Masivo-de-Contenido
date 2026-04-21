@@ -1,0 +1,156 @@
+{
+  "info": {
+    "name": "LM Studio - MCR Cargue Masivo",
+    "description": "Colección para generar contenido SEO de landing pages MCR via LM Studio directo.\n\nURL: http://192.168.1.36:1234\nModelo: openai/gpt-oss-20b\nTemp: 0.4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://192.168.1.36:1234" },
+    { "key": "model", "value": "openai/gpt-oss-20b" },
+    { "key": "temperature", "value": "0.4" },
+    { "key": "ciudad", "value": "Memphis" },
+    { "key": "estado", "value": "Tennessee" }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check - Listar Modelos",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/v1/models",
+        "header": []
+      }
+    },
+    {
+      "name": "1. Quicksearch (H1 + Desc)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Vas a pensar en español, recibirás instrucciones en español y deberás responder en español (español neutral latinoamericano).\\nEres un redactor experto en marketing digital SEO, especializado en contenidos para una agencia de renta de autos.\\nTu tarea es redactar contenido para un landing page de Miles Car Rental.\\nRestricciones de estructura:\\n- Nunca usarás emojis\\n- Nunca usarás doble ** para negrita\\n- Nunca olvides abrir y cerrar las etiquetas de marcado\\n- Mantén el número de palabras que se te indica\\n- Para abrir y cerrar bloques usa el carácter '|' ejemplo: |tit: contenido| |desc: contenido|\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Estos son ejemplos de referencia de H1 y descripción para quicksearch:\\n\\nEjemplo 1: tit: Renta de Autos en Orlando, FL, desc: Buscamos entre miles de opciones para mostrarte el mejor precio en renta de carros en Orlando\\nEjemplo 2: tit: Alquiler de Autos en San Antonio, TX, desc: Buscamos entre miles de opciones para mostrarte el mejor precio en alquiler de vehículos en San Antonio\\nEjemplo 3: tit: Renta de Carros en Baltimore, MD, desc: Buscamos entre miles de opciones para mostrarte el mejor precio en renta de autos en Baltimore\\n\\nnuevo tema: {{ciudad}}, {{estado}}, tit: Alquiler de Autos en {{ciudad}}\\nReglas para desc: cantidad de palabras 15 a 20 palabras mínimo a máximo.\\nAhora genera tú la desc, sigue esta estructura:\\n|tit: Alquiler de Autos en {{ciudad}}|\\n|desc: tu redacción|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Fleet (H2 + Desc + IP_USA + IP_BRA)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.5,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Vas a pensar en español, recibirás instrucciones en español y deberás responder en español (español neutral latinoamericano).\\nEres un redactor experto en marketing digital SEO para Miles Car Rental.\\nRestricciones:\\n- Nunca emojis, nunca doble ** para negrita\\n- Usa '|' para abrir/cerrar bloques: |tit: contenido|\\n- Mantén el número de palabras indicado\\n\\nTabla de beneficios (úsalos según corresponda):\\n- Seguro de Viaje GRATIS → Cobertura de Viaje Gratis → Solo LATAM y Brasil (NO aplica para IP USA)\\n- Kilómetros Ilimitados → Millas Ilimitadas → Todos\\n- Asistencia Básica en Carretera → Soporte Básico en Carretera → Todos\\n- Conductor Adicional → Otro conductor sin costo extra → LATAM y Brasil\\n- Modificaciones sin Cargos → Modificaciones Flexibles → Todos\\n- Beneficio Cobertura del IOF → Solo Brasil (reemplaza 'Seguro de Viaje GRATIS' en ip_bra)\\n\\nPalabras restringidas (NO usar): Coche, Automóvil, Flota, gastos/pagos/cargos ocultos, Descuentos relámpago,\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo de bloque fleet para Orlando:\\ntit: Ofertas en alquiler de autos en Orlando, Florida\\ndesc: Aprovecha nuestras ofertas en renta de autos en Orlando con descuentos hasta del 35%. En Miles Car Rental, te aseguramos ahorros, calidad y el mejor servicio. Planifica tus vacaciones o viaje de negocios a la 'Capital de los Parques' y elige tu medio de transporte aquí. Reserva de manera rápida y sencilla vehículos compactos, SUVs, minivans, convertibles y más. ¡Encontrarás autos para todos los caminos! Además, tendrás beneficios exclusivos como Seguro de Viaje GRATIS (válido para extranjeros), Asistencia Básica en Carretera, Kilómetros Ilimitados, Modificaciones Flexibles e Impuestos Incluidos. Somos la opción perfecta para tus recorridos en Orlando. ¡No esperes más! Reserva hoy.\\nip_usa: (mismo texto SIN 'Seguro de Viaje GRATIS', añade 'Tarifas Preferenciales')\\nip_bra: (mismo texto con 'Beneficio Cobertura del IOF' en lugar de 'Seguro de Viaje GRATIS')\\n\\nnuevo tema: {{ciudad}}, {{estado}}, tit: Ofertas en alquiler de autos en {{ciudad}}\\nReglas para desc: 80 a 85 palabras mínimo a máximo.\\nDiferencias entre versiones:\\n- desc (LATAM general): incluye Seguro de Viaje GRATIS\\n- ip_usa: NO incluye Seguro de Viaje GRATIS, añade Tarifas Preferenciales\\n- ip_bra: reemplaza Seguro de Viaje GRATIS por Beneficio Cobertura del IOF\\n\\nGenera siguiendo esta estructura:\\n|tit: Ofertas en alquiler de autos en {{ciudad}}|\\n|desc: redacción LATAM|\\n|ip_usa: redacción USA|\\n|ip_bra: redacción Brasil|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Reviews (H2 + Desc)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.6,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **. Usa '|' para bloques.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo reviews Orlando:\\ntit: Opiniones sobre alquiler de vehículos en Orlando\\ndesc: Disfruta de beneficios y ahorros notables al rentar un auto en Orlando con Miles Car Rental. ¡Clientes satisfechos: calificación de 4.8/5! Lee sus positivas reseñas, obtén confianza y reserva hasta con 35% OFF. ¿Qué esperas para comprobar nuestro excelente servicio?\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nReglas para desc: 55 a 60 palabras.\\nGenera:\\n|tit: Opiniones sobre alquiler de vehículos en {{ciudad}}|\\n|desc: redacción|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "4. Rentcompanies (H2 + Desc)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **. Usa '|' para bloques. Palabras restringidas: Coche, Automóvil, Flota.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo rentcompanies Orlando:\\ntit: Agencias de renta de carros en Orlando, Florida\\ndesc: ¡Renta un auto en las mejores agencias de alquiler a través de Miles Car Rental! Disfruta una amplia variedad de vehículos con precios altamente competitivos en cualquiera de nuestras compañías asociadas. Ingresa las fechas de tu viaje y elige la empresa que mejor se adapte a tu presupuesto, aquí encontrarás al instante el vehículo perfecto para solucionar tus necesidades de transporte en Orlando. ¡No esperes más, reserva hoy!\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nReglas para desc: 55 a 60 palabras.\\nGenera:\\n|tit: Agencias de renta de carros en {{ciudad}}|\\n|desc: redacción|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "5. Questions - H2 Header",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **. Usa '|' para bloques.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo FAQ header Orlando:\\ntit: Preguntas frecuentes sobre renta de autos en Orlando, FL\\ndesc: ¡Entérate de los detalles y haz tu reserva con confianza! Te proporcionamos respuesta a las preguntas más frecuentes sobre el alquiler de carros en Orlando, Florida. Descubre información acerca de los precios diarios de renta, los requisitos necesarios para alquilar un vehículo, las agencias disponibles y mucho más.\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nReglas para desc: 55 a 60 palabras.\\nGenera:\\n|tit: Preguntas frecuentes sobre alquiler de autos en {{ciudad}}|\\n|desc: redacción|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "5b. Questions - FAQ Respuestas (x4)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **.\\nUsa '|' para bloques. Palabras restringidas: Coche, Automóvil, Flota.\\nMenciona que el precio de alquiler empieza desde USD $9/día cuando aplique.\\nMenciona las agencias: Alamo, Budget, Avis, Enterprise, Hertz cuando sea relevante.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Nuevo tema: {{ciudad}}, {{estado}}\\nReglas para respuestas: 30 a 160 palabras cada una.\\n\\nGenera las respuestas para estas 4 preguntas FAQ:\\n1. ¿Cuánto cuesta rentar un auto en {{ciudad}}?\\n2. ¿Qué se necesita para alquilar un auto en {{ciudad}}?\\n3. ¿Cuál es la agencia de alquiler de autos con los precios más baratos en {{ciudad}}?\\n4. ¿Es posible alquilar un auto en {{ciudad}} y entregarlo en otra ciudad?\\n\\nSigue esta estructura:\\n|faq_1: respuesta pregunta 1|\\n|faq_2: respuesta pregunta 2|\\n|faq_3: respuesta pregunta 3|\\n|faq_4: respuesta pregunta 4|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "6. Fleetcarrusel - H2 + Desc tipos autos",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **. Usa '|' para bloques.\\nIMPORTANTE: Solo usa | al inicio y final de cada bloque, NUNCA dentro del contenido.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo fleetcarrusel Orlando:\\ntit: Flota de vehículos para rentar en Orlando, FL\\ndesc: ¡Aquí encuentras vehículos cómodos y óptimos para recorrer las carreteras de Orlando! Te ofrecemos una variedad de opciones en autos de alquiler, desde compactos y camionetas, hasta minivans y lujosos modelos eléctricos como el fabuloso Tesla. ¡Todos con los mejores beneficios! Selecciona el que se ajuste a tu itinerario, número de pasajeros, cantidad de equipaje y presupuesto. ¡No pierdas tiempo! Reserva hoy mismo.\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nPrimero genera el H2 y su descripción (55-60 palabras).\\nLuego genera descripción para cada tipo de auto (15-25 palabras c/u):\\n1. Carros Económicos\\n2. Camionetas\\n3. Vans\\n4. Convertibles\\n5. Carros de Lujo\\n\\nEstructura:\\n|tit: título H2|\\n|desc: descripción H2|\\n|desc_1: desc Carros Económicos|\\n|desc_2: desc Camionetas|\\n|desc_3: desc Vans|\\n|desc_4: desc Convertibles|\\n|desc_5: desc Carros de Lujo|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "7. Locationscarrusel - H2 + Desc ciudades",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 6000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **.\\nUsa '|' para bloques. IMPORTANTE: Solo usa | al inicio y final de cada bloque, NUNCA dentro del contenido.\\nAmplitud semántica: alterna entre 'Alquiler', 'Renta', usando 'autos', 'carros', 'vehículos'.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo locationscarrusel Orlando:\\ntit: Renta de autos en otras ciudades de USA\\ndesc: Renta un carro en Miles Car Rental para conducir hacia aventuras sin límites y paisajes cautivadores. ¿Quieres descubrir la grandeza de San Francisco o la energía de Nueva York? Con nosotros encontrarás el vehículo perfecto para tu viaje. Disfruta tarifas asequibles, opciones personalizadas y un servicio excepcional. ¡Reserva ahora!\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nPrimero genera H2 y desc (55-60 palabras).\\nLuego genera desc para estas ciudades cercanas (80-100 palabras c/u):\\n1. Nashville\\n2. Little Rock\\n3. Jackson\\n4. Birmingham\\n\\nEstructura:\\n|tit: título H2|\\n|desc: descripción H2|\\n|desc_1: redacción Nashville|\\n|desc_2: redacción Little Rock|\\n|desc_3: redacción Jackson|\\n|desc_4: redacción Birmingham|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "8. Rentacar (H2 + lugares + actividades)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 6000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor SEO experto para Miles Car Rental. Español neutral latinoamericano. Sin emojis. Sin **.\\nUsa '|' para bloques. IMPORTANTE: Solo usa | al inicio y final de cada bloque, NUNCA dentro del contenido.\\nPuedes usar viñetas con * para listas dentro del contenido.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ejemplo rentacar Orlando:\\ntit: Mejores lugares para visitar en Orlando\\ndesc: ¡Explora los mejores lugares de Orlando a tu ritmo! Conoce algunos a continuación:\\n* Walt Disney World: este icónico complejo ofrece una experiencia mágica para toda la familia.\\n* Universal Orlando Resort: sumérgete en el mundo del cine y la televisión.\\n* SeaWorld Orlando: disfruta de espectáculos en vivo.\\n* Orlando Science Center: ideal para amantes de la ciencia y tecnología.\\n\\nnuevo tema: {{ciudad}}, {{estado}}\\nGenera:\\n1. H2 + desc con mejores lugares (95-130 palabras, incluye 3-5 lugares turísticos con *)\\n2. H3: Actividades gratis en {{ciudad}} (220-250 palabras, lista con *)\\n3. H3: ¿Qué hacer en 3 días en {{ciudad}}? (220-250 palabras, itinerario día por día)\\n\\nEstructura:\\n|tit: título H2|\\n|desc: descripción lugares turísticos|\\n|desc_1: actividades gratis|\\n|desc_2: qué hacer en 3 días|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "9. Traducir ES→EN",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional translator. Translate the following Spanish text to English.\\nMaintain the exact same formatting, structure, and pipe delimiters |key: value|.\\nKeep brand names unchanged: Miles Car Rental.\\nTranslate naturally for a US English audience.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Translate this to English:\\n\\n|tit: Alquiler de Autos en Memphis|\\n|desc: PEGA AQUÍ EL CONTENIDO EN ESPAÑOL A TRADUCIR|\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "10. Traducir ES→PT",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/chat/completions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você é um tradutor profissional. Traduza o seguinte texto em espanhol para português brasileiro.\\nMantenha exatamente a mesma formatação, estrutura e delimitadores |chave: valor|.\\nMantenha os nomes de marcas: Miles Car Rental.\\nTraduza naturalmente para o público brasileiro.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Traduza para português:\\n\\n|tit: Alquiler de Autos en Memphis|\\n|desc: PEGA AQUÍ EL CONTENIDO EN ESPAÑOL A TRADUCIR|\"\n    }\n  ]\n}"
+        }
+      }
+    }
+  ]
+}
